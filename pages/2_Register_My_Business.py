@@ -26,6 +26,11 @@ with st.form("register_business", clear_on_submit=True):
     starting_price = st.number_input("Starting price (R)", min_value=0.0, step=10.0)
     operating_hours = st.text_input("Operating hours", placeholder="e.g. Mon-Fri 9am-5pm")
     website = st.text_input("Website / social media link (optional)")
+    photos = st.file_uploader(
+        "Photos (optional, up to 4)",
+        type=["png", "jpg", "jpeg"],
+        accept_multiple_files=True,
+    )
 
     st.caption(
         "By submitting, you agree that this business information (excluding "
@@ -51,6 +56,8 @@ with st.form("register_business", clear_on_submit=True):
             errors.append("Services offered is required.")
         if not consent:
             errors.append("You must agree to the consent notice.")
+        if photos and len(photos) > 4:
+            errors.append("Please upload a maximum of 4 photos.")
 
         if errors:
             for e in errors:
@@ -58,6 +65,20 @@ with st.form("register_business", clear_on_submit=True):
         else:
             try:
                 supabase = get_client()
+
+                photo_urls = []
+                if photos:
+                    import uuid
+                    for photo in photos[:4]:
+                        ext = photo.name.split(".")[-1]
+                        file_path = f"{uuid.uuid4()}.{ext}"
+                        supabase.storage.from_("business-photos").upload(
+                            file_path, photo.getvalue(),
+                            {"content-type": photo.type},
+                        )
+                        public_url = supabase.storage.from_("business-photos").get_public_url(file_path)
+                        photo_urls.append(public_url)
+
                 supabase.table("businesses").insert({
                     "business_name": business_name.strip(),
                     "owner_name": owner_name.strip(),
@@ -71,6 +92,7 @@ with st.form("register_business", clear_on_submit=True):
                     "starting_price": starting_price or None,
                     "operating_hours": operating_hours.strip() or None,
                     "website": website.strip() or None,
+                    "photo_urls": photo_urls or None,
                     "status": "pending",
                 }, returning="minimal").execute()
                 st.success("Your business has been submitted successfully.")

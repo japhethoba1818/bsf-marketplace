@@ -95,9 +95,27 @@ else:
                                 supabase.table("quote_requests").update(
                                     {"status": "quoted"}
                                 ).eq("id", req["id"]).execute()
-                                st.success("Quote sent!")
-                                st.rerun()
+
+                                import urllib.parse
+                                wa_number = req["customer_whatsapp"].replace(" ", "").replace("+", "")
+                                msg_lines = [
+                                    f"Hi {req['customer_name']}, here's your quote from {business['business_name']}:",
+                                    f"Amount: R{amount:.0f}",
+                                ]
+                                if completion.strip():
+                                    msg_lines.append(f"Estimated completion: {completion.strip()}")
+                                if message.strip():
+                                    msg_lines.append(message.strip())
+                                wa_message = urllib.parse.quote("\n".join(msg_lines))
+                                wa_link = f"https://wa.me/{wa_number}?text={wa_message}"
+
+                                st.session_state[f"wa_link_{req['id']}"] = wa_link
+                                st.success("Quote saved! Now send it to the customer:")
                             except Exception as e:
                                 st.error(f"Could not send quote: {e}")
+
+                wa_link_key = f"wa_link_{req['id']}"
+                if wa_link_key in st.session_state:
+                    st.link_button("💬 Send Quote via WhatsApp", st.session_state[wa_link_key])
             else:
                 st.caption(f"Already responded — status: {req['status']}")

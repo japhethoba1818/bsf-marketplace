@@ -37,6 +37,12 @@ if not business:
 st.title(business["business_name"])
 st.caption(f"{business['category']} · {business.get('location', 'Location not set')}")
 
+if business.get("photo_urls"):
+    photo_cols = st.columns(len(business["photo_urls"]))
+    for col, url in zip(photo_cols, business["photo_urls"]):
+        with col:
+            st.image(url, use_container_width=True)
+
 if business.get("description"):
     st.write(business["description"])
 

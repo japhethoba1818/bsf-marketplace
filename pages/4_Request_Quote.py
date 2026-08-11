@@ -19,7 +19,12 @@ st.write(f"Requesting a quote from: **{business_name}**")
 
 with st.form("request_quote", clear_on_submit=True):
     customer_name = st.text_input("Your name *")
-    customer_whatsapp = st.text_input("Your WhatsApp number *", placeholder="e.g. 0821234567")
+    customer_whatsapp = st.text_input(
+        "Your WhatsApp number *",
+        placeholder="e.g. 0821234567",
+        help="Make sure this is correct — the provider will contact you on this number with their quote. We do not send email or SMS notifications.",
+    )
+    st.caption("⚠️ Please double-check your WhatsApp number above — it's the only way the provider will reach you with their quote.")
     customer_email = st.text_input("Email (optional)")
     service_required = st.text_input("Service required *", placeholder="e.g. Laptop repair")
     description = st.text_area(
