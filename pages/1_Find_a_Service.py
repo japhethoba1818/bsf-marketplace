@@ -73,7 +73,7 @@ else:
             with btn_col1:
                 if st.button("View Profile", key=f"profile_{b['id']}"):
                     st.session_state["profile_business_id"] = b["id"]
-                    st.switch_page("pages/3_Business_Profile.py")
+                    st.switch_page("pages/_Business_Profile.py")
             with btn_col2:
                 wa_number = b.get("whatsapp_number", "").replace(" ", "").replace("+", "")
                 st.link_button("💬 WhatsApp", f"https://wa.me/{wa_number}")
@@ -81,4 +81,4 @@ else:
                 if st.button("Request Quote", key=f"quote_{b['id']}"):
                     st.session_state["quote_business_id"] = b["id"]
                     st.session_state["quote_business_name"] = b["business_name"]
-                    st.switch_page("pages/4_Request_Quote.py")
+                    st.switch_page("pages/_Request_Quote.py")

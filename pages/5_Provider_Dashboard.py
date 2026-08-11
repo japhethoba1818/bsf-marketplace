@@ -1,40 +1,46 @@
 import streamlit as st
 from lib.db import get_client
+from lib.auth import get_current_user
 
 st.set_page_config(page_title="Provider Dashboard — BSF Marketplace", page_icon="📊")
 
 st.title("📊 Provider Dashboard")
-st.write("Look up your business to view and respond to quote requests.")
+
+user = get_current_user()
+if not user:
+    st.warning("Please sign in to view your business dashboard.")
+    if st.button("🔐 Go to Sign In"):
+        st.switch_page("pages/6_Sign_In.py")
+    st.stop()
 
 supabase = get_client()
-
-lookup_whatsapp = st.text_input(
-    "Enter the WhatsApp number you registered with",
-    placeholder="e.g. 0821234567",
-)
-
-if not lookup_whatsapp.strip():
-    st.info("Enter your WhatsApp number above to access your dashboard.")
-    st.stop()
 
 try:
     result = (
         supabase.table("businesses")
         .select("*")
-        .eq("whatsapp_number", lookup_whatsapp.strip())
+        .eq("owner_user_id", user.id)
         .execute()
     )
     businesses = result.data
 except Exception as e:
-    st.error(f"Could not look up business: {e}")
+    st.error(f"Could not load your businesses: {e}")
     businesses = []
 
 if not businesses:
-    st.warning("No business found with that WhatsApp number.")
+    st.info("You haven't registered a business yet.")
+    if st.button("🏪 Register My Business"):
+        st.switch_page("pages/2_Register_My_Business.py")
     st.stop()
 
-business = businesses[0]
-st.success(f"Welcome, {business['business_name']}")
+if len(businesses) == 1:
+    business = businesses[0]
+else:
+    names = {b["business_name"]: b for b in businesses}
+    chosen = st.selectbox("Select your business", list(names.keys()))
+    business = names[chosen]
+
+st.success(f"Managing: {business['business_name']}")
 st.caption(f"Status: {business['status']}")
 
 st.divider()

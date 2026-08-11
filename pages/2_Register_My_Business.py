@@ -1,7 +1,16 @@
 import streamlit as st
 from lib.db import get_client
+from lib.auth import get_current_user
 
 st.set_page_config(page_title="Register My Business — BSF Marketplace", page_icon="🏪")
+
+user = get_current_user()
+if not user:
+    st.title("🏪 Register My Business")
+    st.warning("Please sign in first to register a business.")
+    if st.button("🔐 Go to Sign In"):
+        st.switch_page("pages/6_Sign_In.py")
+    st.stop()
 
 CATEGORIES = [
     "Technology", "Business Services", "Food & Catering", "Fashion & Clothing",
@@ -58,6 +67,10 @@ with st.form("register_business", clear_on_submit=True):
             errors.append("You must agree to the consent notice.")
         if photos and len(photos) > 4:
             errors.append("Please upload a maximum of 4 photos.")
+        if photos:
+            for p in photos:
+                if p.size > 5 * 1024 * 1024:
+                    errors.append(f"{p.name} is too large (max 5MB per photo).")
 
         if errors:
             for e in errors:
@@ -80,6 +93,7 @@ with st.form("register_business", clear_on_submit=True):
                         photo_urls.append(public_url)
 
                 supabase.table("businesses").insert({
+                    "owner_user_id": user.id,
                     "business_name": business_name.strip(),
                     "owner_name": owner_name.strip(),
                     "whatsapp_number": whatsapp_number.strip(),
