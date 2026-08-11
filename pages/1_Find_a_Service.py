@@ -69,11 +69,15 @@ else:
             hours_line = b.get("operating_hours") or "Hours not specified"
             st.write(f"**{price_line}** · {hours_line}")
 
-            btn_col1, btn_col2 = st.columns(2)
+            btn_col1, btn_col2, btn_col3 = st.columns(3)
             with btn_col1:
+                if st.button("View Profile", key=f"profile_{b['id']}"):
+                    st.session_state["profile_business_id"] = b["id"]
+                    st.switch_page("pages/3_Business_Profile.py")
+            with btn_col2:
                 wa_number = b.get("whatsapp_number", "").replace(" ", "").replace("+", "")
                 st.link_button("💬 WhatsApp", f"https://wa.me/{wa_number}")
-            with btn_col2:
+            with btn_col3:
                 if st.button("Request Quote", key=f"quote_{b['id']}"):
                     st.session_state["quote_business_id"] = b["id"]
                     st.session_state["quote_business_name"] = b["business_name"]
