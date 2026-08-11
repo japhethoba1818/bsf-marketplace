@@ -65,6 +65,10 @@ with col3:
     if st.button("💬 Request a Quote"):
         st.switch_page("pages/1_Find_a_Service.py")
 
+st.write("")
+if st.button("📊 Provider Dashboard", use_container_width=True):
+    st.switch_page("pages/5_Provider_Dashboard.py")
+
 st.divider()
 st.caption(
     "By using this platform, you agree that basic contact and business "
