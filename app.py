@@ -51,6 +51,26 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
+from lib.db import get_client
+
+try:
+    _supabase = get_client()
+    _result = _supabase.table("businesses").select("category").eq("status", "approved").execute()
+    _businesses = _result.data
+    _business_count = len(_businesses)
+    _category_count = len(set(b["category"] for b in _businesses)) if _businesses else 0
+except Exception:
+    _business_count = 0
+    _category_count = 0
+
+if _business_count > 0:
+    stat_col1, stat_col2 = st.columns(2)
+    with stat_col1:
+        st.metric("Businesses Listed", _business_count)
+    with stat_col2:
+        st.metric("Categories", _category_count)
+    st.write("")
+
 col1, col2, col3 = st.columns(3)
 
 with col1:
