@@ -18,7 +18,7 @@ with st.form("register_business", clear_on_submit=True):
     owner_name = st.text_input("Owner / member name *")
     whatsapp_number = st.text_input("WhatsApp number *", placeholder="e.g. 0821234567")
     email = st.text_input("Email (optional)")
-    branch = st.text_input("BSF branch")
+    branch = st.text_input("Branch")
     location = st.text_input("Location *", placeholder="e.g. Johannesburg")
     category = st.selectbox("Category *", CATEGORIES)
     services = st.text_area("Services offered *", placeholder="e.g. Laptop repairs, screen replacements")
