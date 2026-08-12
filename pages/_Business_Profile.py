@@ -63,7 +63,7 @@ with col2:
     st.metric("Operating Hours", business.get("operating_hours") or "Not specified")
 
 if business.get("branch"):
-    st.write(f"**BSF Branch:** {business['branch']}")
+    st.write(f"**ZCCSF Branch:** {business['branch']}")
 if business.get("website"):
     st.write(f"**Website / Social:** {business['website']}")
 

@@ -19,6 +19,8 @@ CATEGORIES = [
     "Professional Services", "Retail", "Other",
 ]
 
+ZCCSF_BRANCHES = ["AP", "CJC", "DFC", "SWC", "WITS", "N/A", "Other"]
+
 st.title("🏪 Register My Business")
 st.write("List your business or service in the BSF Marketplace.")
 
@@ -27,7 +29,10 @@ with st.form("register_business", clear_on_submit=True):
     owner_name = st.text_input("Owner / member name *")
     whatsapp_number = st.text_input("WhatsApp number *", placeholder="e.g. 0821234567")
     email = st.text_input("Email (optional)")
-    branch = st.text_input("Branch")
+    branch_choice = st.selectbox("ZCCSF Branch", ZCCSF_BRANCHES)
+    branch_other = ""
+    if branch_choice == "Other":
+        branch_other = st.text_input("Please specify your ZCCSF Branch")
     location = st.text_input("Location *", placeholder="e.g. Johannesburg")
     category = st.selectbox("Category *", CATEGORIES)
     services = st.text_area("Services offered *", placeholder="e.g. Laptop repairs, screen replacements")
@@ -59,6 +64,8 @@ with st.form("register_business", clear_on_submit=True):
             errors.append("Owner/member name is required.")
         if not whatsapp_number.strip():
             errors.append("WhatsApp number is required.")
+        if branch_choice == "Other" and not branch_other.strip():
+            errors.append("Please specify your ZCCSF Branch.")
         if not location.strip():
             errors.append("Location is required.")
         if not services.strip():
@@ -79,6 +86,8 @@ with st.form("register_business", clear_on_submit=True):
             try:
                 supabase = get_client()
 
+                branch_value = branch_other.strip() if branch_choice == "Other" else branch_choice
+
                 photo_urls = []
                 if photos:
                     import uuid
@@ -98,7 +107,7 @@ with st.form("register_business", clear_on_submit=True):
                     "owner_name": owner_name.strip(),
                     "whatsapp_number": whatsapp_number.strip(),
                     "email": email.strip() or None,
-                    "branch": branch.strip() or None,
+                    "branch": branch_value or None,
                     "location": location.strip(),
                     "category": category,
                     "services": services.strip(),
