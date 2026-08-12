@@ -98,9 +98,12 @@ else:
                                     "message": message.strip() or None,
                                     "status": "sent",
                                 }, returning="minimal").execute()
-                                supabase.table("quote_requests").update(
+
+                                update_result = supabase.table("quote_requests").update(
                                     {"status": "quote_sent"}
                                 ).eq("id", req["id"]).execute()
+
+                                st.write("🐛 DEBUG update_result.data:", update_result.data)
 
                                 import urllib.parse
                                 wa_number = req["customer_whatsapp"].replace(" ", "").replace("+", "")
@@ -116,7 +119,7 @@ else:
                                 wa_link = f"https://wa.me/{wa_number}?text={wa_message}"
 
                                 st.session_state[f"wa_link_{req['id']}"] = wa_link
-                                st.rerun()
+                                st.session_state[f"debug_shown_{req['id']}"] = True
                             except Exception as e:
                                 st.error(f"Could not send quote: {e}")
             else:
