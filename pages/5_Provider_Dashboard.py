@@ -99,7 +99,7 @@ else:
                                     "status": "sent",
                                 }, returning="minimal").execute()
                                 supabase.table("quote_requests").update(
-                                    {"status": "quoted"}
+                                    {"status": "quote_sent"}
                                 ).eq("id", req["id"]).execute()
 
                                 import urllib.parse
@@ -116,12 +116,13 @@ else:
                                 wa_link = f"https://wa.me/{wa_number}?text={wa_message}"
 
                                 st.session_state[f"wa_link_{req['id']}"] = wa_link
-                                st.success("Quote saved! Now send it to the customer:")
+                                st.rerun()
                             except Exception as e:
                                 st.error(f"Could not send quote: {e}")
-
-                wa_link_key = f"wa_link_{req['id']}"
-                if wa_link_key in st.session_state:
-                    st.link_button("💬 Send Quote via WhatsApp", st.session_state[wa_link_key])
             else:
                 st.caption(f"Already responded — status: {req['status']}")
+
+            wa_link_key = f"wa_link_{req['id']}"
+            if wa_link_key in st.session_state:
+                st.success("Quote saved! Send it to the customer:")
+                st.link_button("💬 Send Quote via WhatsApp", st.session_state[wa_link_key])

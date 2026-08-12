@@ -1,3 +1,4 @@
+import re
 import streamlit as st
 from datetime import date
 from lib.db import get_client
@@ -21,10 +22,10 @@ with st.form("request_quote", clear_on_submit=True):
     customer_name = st.text_input("Your name *")
     customer_whatsapp = st.text_input(
         "Your WhatsApp number *",
-        placeholder="e.g. 0821234567",
-        help="Make sure this is correct — the provider will contact you on this number with their quote. We do not send email or SMS notifications.",
+        placeholder="+27821234567",
+        help="Format: +27 followed by 9 digits, no spaces (e.g. +27821234567). This is used to build your provider's WhatsApp link, so it must be exact.",
     )
-    st.caption("⚠️ Please double-check your WhatsApp number above — it's the only way the provider will reach you with their quote.")
+    st.caption("⚠️ Must be in the format +27xxxxxxxxx — this is how the provider's WhatsApp link is generated.")
     customer_email = st.text_input("Email (optional)")
     service_required = st.text_input("Service required *", placeholder="e.g. Laptop repair")
     description = st.text_area(
@@ -44,10 +45,13 @@ with st.form("request_quote", clear_on_submit=True):
 
     if submitted:
         errors = []
+        whatsapp_clean = customer_whatsapp.strip()
         if not customer_name.strip():
             errors.append("Your name is required.")
-        if not customer_whatsapp.strip():
+        if not whatsapp_clean:
             errors.append("Your WhatsApp number is required.")
+        elif not re.match(r"^\+27\d{9}$", whatsapp_clean):
+            errors.append("WhatsApp number must be in the format +27xxxxxxxxx (e.g. +27821234567).")
         if not service_required.strip():
             errors.append("Service required is required.")
         if not description.strip():
@@ -64,7 +68,7 @@ with st.form("request_quote", clear_on_submit=True):
                 supabase.table("quote_requests").insert({
                     "business_id": business_id,
                     "customer_name": customer_name.strip(),
-                    "customer_whatsapp": customer_whatsapp.strip(),
+                    "customer_whatsapp": whatsapp_clean,
                     "customer_email": customer_email.strip() or None,
                     "service_required": service_required.strip(),
                     "description": description.strip(),
